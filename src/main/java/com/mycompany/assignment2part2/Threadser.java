@@ -58,8 +58,8 @@ public class Threadser implements Runnable{
                 //System.out.println(from);
                 //System.out.println("from me : "+message);
                 //Client.statusText.setText("received from " + packet.getAddress() +" : " + packet.getPort());
-                listModel1.addElement(from);
-                Client.jList2.setModel(listModel1);
+                Client.listModel1.addElement(from);
+                Client.jList2.setModel(Client.listModel1);
                 //file read here
                 int i = 20;
                 String messageFromUser = "";
@@ -68,6 +68,7 @@ public class Threadser implements Runnable{
                     i++;
                 }
                 System.out.println(messageFromUser);
+                Client.listModel2.addElement(messageFromUser);
                 Client.statusText.setText("Recevied From IP = " + packet.getAddress() + " , Port = " + packet.getPort());
             }
             catch (Exception ex){
