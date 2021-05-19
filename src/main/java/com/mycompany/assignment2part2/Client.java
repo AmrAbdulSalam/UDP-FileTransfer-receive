@@ -56,8 +56,7 @@ public class Client extends javax.swing.JFrame {
         }
         
         
-    }//contr
-   
+    }//contr   
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -409,6 +408,7 @@ public class Client extends javax.swing.JFrame {
         int x = str.indexOf(":");
         localIpText.setText(str.substring(x + 2));
     }//GEN-LAST:event_jComboBox1ActionPerformed
+    private String pathStr;
     public static String messageSent = "";
     public static DefaultListModel<String> listModel1 = new DefaultListModel<String>();
     public static DefaultListModel<String> listModel2 = new DefaultListModel<String>();
@@ -427,32 +427,16 @@ public class Client extends javax.swing.JFrame {
                    filechooser.showOpenDialog(this);
                    String filePathString = filechooser.getSelectedFile()+"";
                    String arr[] = filePathString.split("\\\\");
-                   //System.out.println(arr[arr.length-1]);
                    textEnter.setText(arr[arr.length-1]);
+                   pathStr = "."+arr[arr.length-1].split("\\.")[1];
                    FileInputStream file = new FileInputStream(filechooser.getSelectedFile());
-                   int i = 20 ;
-                   byte[] byteFile = new byte[1024];
-                   for(int j = 0 ; j < 1024 ; j++){
-                       byteFile[j] = (byte) 0;
-                   }
-                   int c;
-                   String fileStr = "";
-                   while((c=file.read()) != -1){
-                       byteFile[i] = (byte)(char)c;
-                       fileStr += (char) c;
-                       i++;
-                   }
-                   file.close();
-                   
-                   
-                   //String messageSent = "";
+                   byte[] byteFile = new byte[30];
+
                    messageSent = textEnter.getText();
                    String username = usernameText.getText();
-                   //String formatMessage = "Me : " + messageSent;
-//                messageArea.append(formatMessage + '\n'); // adding text to the main message screen
-                  //jList2.setModel(Threadser.listModel1);
                   textEnter.setText(""); // clearing message area
-                  messageSent = username +": " + messageSent;
+                  //int numPacket =(int)filechooser.getSelectedFile().length();
+                  messageSent = username +": " + messageSent +"::"+"newPacket";
                   char [] ch = new char[messageSent.length()];
                   for (int j = 0; j < ch.length; j++) {
                         ch[j] = messageSent.charAt(j);
@@ -461,11 +445,35 @@ public class Client extends javax.swing.JFrame {
                   for(int j = 0 ; j < ch.length ; j++ ){
                       byteFile[j] = (byte)(char)ch[j];
                   }
+                  serverth.sendTo(ip, messageSent , byteFile);
+                   
                 try {
-                    listModel1.addElement(messageSent);
-                    listModel2.addElement(fileStr);
-                    //Threadser.listModel1.addElement(messageSent);
+                    listModel1.addElement(messageSent.split("::")[0]);
                     jList2.setModel(listModel1);
+                    int fileSize = (int)filechooser.getSelectedFile().length();
+                    while(fileSize > 0 ){
+                        byteFile = new byte[1024];
+                        file.read(byteFile);
+                        serverth.sendTo(ip, messageSent , byteFile);
+                        fileSize -=1024;
+                    }
+                    int c;
+                    String sts="";
+                    while((c=file.read()) != -1){
+                       sts += (char) c;
+                   }
+                   file.close();
+                   System.out.println(sts);
+                    listModel2.addElement(sts);
+                    String endPacket = "endPacket";
+                    byteFile = new byte[20];
+                    char [] ch2 = new char[endPacket.length()];
+                  for (int j = 0; j < ch2.length; j++) {
+                        ch2[j] = endPacket.charAt(j);
+                  }
+                    for(int j = 0 ; j < ch2.length ; j++ ){
+                      byteFile[j] = (byte)(char)ch2[j];
+                  }
                     serverth.sendTo(ip, messageSent , byteFile);
 
                 } catch (Exception ex) {
@@ -586,7 +594,7 @@ public class Client extends javax.swing.JFrame {
             File filePath = filechooser.getSelectedFile();
             
             try {
-                FileWriter filewriter = new FileWriter(filePath+".txt");
+                FileWriter filewriter = new FileWriter(filePath+pathStr);
                 filewriter.write(listModel2.getElementAt(index));
                 filewriter.flush();
                 filewriter.close();
@@ -601,7 +609,7 @@ public class Client extends javax.swing.JFrame {
         //view button !
         int index = jList2.getSelectedIndex();
         JOptionPane.showMessageDialog(this, listModel2.getElementAt(index));
-        System.out.println(index);
+        System.out.println("index hereee : "+index);
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jList2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jList2MouseClicked

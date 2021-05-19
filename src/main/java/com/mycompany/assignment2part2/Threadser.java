@@ -36,6 +36,7 @@ public class Threadser implements Runnable{
             ex.printStackTrace();
         }
     }
+    private String messageFromUser = "";
     @Override
     public void run() {
         System.out.println("inside run function");
@@ -48,27 +49,26 @@ public class Threadser implements Runnable{
                 DatagramPacket packet = new DatagramPacket(data , data.length);
                 socket.receive(packet);
                 //data = packet.getData();
-                
                 String message = new String(packet.getData());
-                char c[] = new char[20];
-                for(int i = 0 ; i < 20 ; i++){
-                    c[i] = message.charAt(i);
+                if(message.contains("newPacket")){
+                    String arr [] = message.split("::");
+                    Client.listModel1.addElement(arr[0]);
+                    Client.jList2.setModel(Client.listModel1);
+                    while(true){
+                        socket.receive(packet);
+                        message = new String(packet.getData());
+                        if(message.contains("endPacket"))
+                            break;
+                        else{
+                            messageFromUser += message;
+                        }
+                    }
                 }
-                String from = String.valueOf(c);
-                //System.out.println(from);
-                //System.out.println("from me : "+message);
-                //Client.statusText.setText("received from " + packet.getAddress() +" : " + packet.getPort());
-                Client.listModel1.addElement(from);
-                Client.jList2.setModel(Client.listModel1);
-                //file read here
-                int i = 20;
-                String messageFromUser = "";
-                while(message.charAt(i) != 0){
-                    messageFromUser+=message.charAt(i);
-                    i++;
-                }
-                System.out.println(messageFromUser);
+
+                
                 Client.listModel2.addElement(messageFromUser);
+                //listModel2.addElement(messageFromUser);
+                //Client.jList2.setModel(Client.listModel2);
                 Client.statusText.setText("Recevied From IP = " + packet.getAddress() + " , Port = " + packet.getPort());
             }
             catch (Exception ex){
