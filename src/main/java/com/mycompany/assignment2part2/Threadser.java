@@ -51,9 +51,11 @@ public class Threadser implements Runnable{
                 //data = packet.getData();
                 String message = new String(packet.getData());
                 if(message.contains("newPacket")){
+                    
                     String arr [] = message.split("::");
                     Client.listModel1.addElement(arr[0]);
                     Client.jList2.setModel(Client.listModel1);
+                    messageFromUser = "";
                     while(true){
                         socket.receive(packet);
                         message = new String(packet.getData());
@@ -65,10 +67,7 @@ public class Threadser implements Runnable{
                     }
                 }
 
-                
                 Client.listModel2.addElement(messageFromUser);
-                //listModel2.addElement(messageFromUser);
-                //Client.jList2.setModel(Client.listModel2);
                 Client.statusText.setText("Recevied From IP = " + packet.getAddress() + " , Port = " + packet.getPort());
             }
             catch (Exception ex){
